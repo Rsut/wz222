@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WZ222 - DNA纳米技术研究者</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --accent-color: #00ffaa;
+            --accent-secondary: #00ccff;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* DNA 双螺旋背景动画 */
+        .dna-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.05;
+            z-index: 0;
+        }
+
+        .dna-strand {
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                var(--accent-color) 20%, 
+                transparent 40%, 
+                var(--accent-secondary) 60%, 
+                transparent 80%);
+            animation: dna-rotate 20s linear infinite;
+        }
+
+        .dna-strand:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .dna-strand:nth-child(2) { left: 80%; animation-delay: 10s; }
+
+        @keyframes dna-rotate {
+            0% { transform: translateY(-100%) rotateZ(0deg); }
+            100% { transform: translateY(100%) rotateZ(360deg); }
+        }
+
+        /* 导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            padding: 15px 50px;
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(30deg); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 语言切换按钮 */
+        .lang-toggle {
+            margin-left: 30px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-toggle:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: clamp(3rem, 5vw, 4.5rem);
+            margin-bottom: 20px;
+            line-height: 1.1;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 0.2s forwards;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 0.4s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* 个人照片容器 */
+        .hero-image {
+            position: relative;
+            opacity: 0;
+            transform: translateX(30px);
+            animation: fadeInRight 1s ease 0.8s forwards;
+        }
+
+        @keyframes fadeInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .profile-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background: var(--secondary-bg);
+            border: 2px solid var(--border-color);
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--secondary-bg), rgba(0, 255, 170, 0.1));
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* DNA 分子装饰 */
+        .dna-decoration {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            pointer-events: none;
+        }
+
+        .dna-helix {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .dna-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .dna-particle:nth-child(1) { top: 20%; left: 10%; animation: float 3s ease-in-out infinite; }
+        .dna-particle:nth-child(2) { top: 80%; left: 20%; animation: float 3s ease-in-out 0.5s infinite; }
+        .dna-particle:nth-child(3) { top: 10%; right: 15%; animation: float 3s ease-in-out 1s infinite; }
+        .dna-particle:nth-child(4) { bottom: 20%; right: 10%; animation: float 3s ease-in-out 1.5s infinite; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.2); }
+        }
+
+        /* 研究领域部分 */
+        .section {
+            padding: 100px 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 60px;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .section-title.visible {
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+        }
+
+        .research-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+        }
+
+        .research-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .research-card.visible {
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .research-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px rgba(0, 255, 170, 0.1);
+        }
+
+        .research-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .research-icon svg {
+            width: 36px;
+            height: 36px;
+            stroke: var(--primary-bg);
+            fill: none;
+        }
+
+        .research-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .research-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* 发表成果时间线 */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .timeline-item.visible {
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: 50%;
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 50%;
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            width: 45%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            top: 40px;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -60px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -60px;
+        }
+
+        .publication-year {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .publication-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .publication-journal {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* 联系部分 */
+        .contact {
+            background: var(--secondary-bg);
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .contact-info h3 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .contact-item svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            color: var(--accent-color);
+        }
+
+        .contact-form {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 合作伙伴评价部分 */
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.1);
+        }
+
+        .testimonial-card p {
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .testimonial-card span {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        /* 页脚 */
+        footer {
+            padding: 30px 50px;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .hero-content,
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .profile-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                margin: 0 0 0 60px;
+                text-align: left;
+                width: calc(100% - 60px);
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-dot {
+                left: 20px !important;
+                right: auto !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .hero,
+            .section {
+                padding: 80px 20px;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .research-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dna-loader {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .dna-loader::before,
+        .dna-loader::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--accent-color);
+            animation: spin 1.5s linear infinite;
+        }
+
+        .dna-loader::after {
+            border-top-color: var(--accent-secondary);
+            animation-delay: 0.75s;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="dna-loader"></div>
+    </div>
+
+    <!-- DNA 背景 -->
+    <div class="dna-background">
+        <div class="dna-strand"></div>
+        <div class="dna-strand"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav id="navbar">
+        <div class="nav-content">
+            <div class="logo">WZ222</div>
+            <ul class="nav-links">
+                <!-- 导航链接支持中英文切换，默认为中文 -->
+                <li><a href="#home" data-i18n="nav-home">首页</a></li>
+                <li><a href="#research" data-i18n="nav-research">研究方向</a></li>
+                <li><a href="#publications" data-i18n="nav-publications">发表成果</a></li>
+                <li><a href="#contact" data-i18n="nav-contact">联系方式</a></li>
+            </ul>
+            <!-- 语言切换按钮：点击可在中文和英文之间切换 -->
+            <button id="lang-toggle" class="lang-toggle">EN</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 data-i18n="hero-title">探索DNA纳米技术的无限可能</h1>
+                <p class="subtitle" data-i18n="hero-subtitle">DNA Nanotechnology Researcher</p>
+                <p data-i18n="hero-desc">我是wz222，上海交通大学生物医学工程学院博士研究生。专注于DNA纳米技术的前沿研究，致力于开发创新的分子设计方法和生物医学应用。</p>
+                <div class="cta-buttons">
+                    <a href="#research" class="btn btn-primary" data-i18n="cta-primary">了解我的研究</a>
+                    <a href="#contact" class="btn btn-secondary" data-i18n="cta-secondary">联系我</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="profile-container">
+                    <div class="dna-decoration">
+                        <div class="dna-helix">
+                            <div class="dna-particle"></div>
+                            <div class="dna-particle"></div>
+                            <div class="dna-particle"></div>
+                            <div class="dna-particle"></div>
+                        </div>
+                    </div>
+                    <div class="profile-image">
+                        <img src="./images/profile-photo.jpg" alt="WZ222个人照片">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 研究方向 -->
+    <section class="section" id="research">
+        <div class="section-content">
+            <h2 class="section-title" data-i18n="section-research-title">研究方向</h2>
+            <div class="research-grid">
+                <div class="research-card">
+                    <!-- 自定义SVG图标：数据库/存储 -->
+                    <div class="research-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="60" height="60">
+                            <!-- 顶部椭圆 -->
+                            <ellipse cx="12" cy="5" rx="8" ry="3" fill="none" />
+                            <!-- 中部矩形 -->
+                            <path d="M4 5v10c0 1.7 3.6 3 8 3s8-1.3 8-3V5" />
+                            <!-- 底部椭圆 -->
+                            <ellipse cx="12" cy="15" rx="8" ry="3" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="research-storage-title">DNA数据存储</h3>
+                    <p data-i18n="research-storage-desc">开发高密度DNA存储技术，将数字信息编码到DNA序列中，实现超高密度、长期稳定的数据存储解决方案。</p>
+                </div>
+                <div class="research-card">
+                    <!-- 自定义SVG图标：双螺旋 -->
+                    <div class="research-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="60" height="60">
+                            <!-- 左侧曲线 -->
+                            <path d="M8 2c3 2 3 6 0 8s-3 6 0 8" />
+                            <!-- 右侧曲线 -->
+                            <path d="M16 2c-3 2-3 6 0 8s3 6 0 8" />
+                            <!-- 横线 -->
+                            <line x1="9" y1="6" x2="15" y2="6" />
+                            <line x1="9" y1="12" x2="15" y2="12" />
+                            <line x1="9" y1="18" x2="15" y2="18" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="research-sequencing-title">高通量DNA测序</h3>
+                    <p data-i18n="research-sequencing-desc">研究新一代测序技术和算法优化，提高测序通量、准确性和速度，推动基因组学研究和精准医疗发展。</p>
+                </div>
+                <div class="research-card">
+                    <!-- 自定义SVG图标：试管/诊断 -->
+                    <div class="research-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="60" height="60">
+                            <!-- 试管主体 -->
+                            <path d="M8 2h8a1 1 0 0 1 1 1v13a5 5 0 1 1-10 0V3a1 1 0 0 1 1-1z" />
+                            <!-- 液面 -->
+                            <line x1="8" y1="9" x2="16" y2="9" />
+                            <!-- 心电图样的诊断线条 -->
+                            <polyline points="6,17 9,14 12,16 15,13 18,15" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="research-diagnosis-title">核酸分子诊断</h3>
+                    <p data-i18n="research-diagnosis-desc">开发创新的核酸检测技术和诊断平台，实现快速、灵敏、特异的病原体检测和遗传疾病诊断。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 发表成果 -->
+    <section class="section" id="publications">
+        <div class="section-content">
+            <h2 class="section-title" data-i18n="section-publications-title">发表成果</h2>
+            <p style="text-align:right;">
+                <!-- 在中英文之间切换文本时使用 data-i18n 属性 -->
+                <a href="https://scholar.google.com.hk/citations?hl=zh-CN&user=J4Ge2U4AAAAJ&view_op=list_works&sortby=pubdate"
+                   target="_blank"
+                   style="color:var(--accent-color); text-decoration:underline;"
+                   data-i18n="view-scholar">查看 Google 学术主页</a>
+            </p>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2025</div>
+                        <h3 class="publication-title">Design of mismatch closure for enhanced specificity in DNA strand displacement reactions</h3>
+                        <p class="publication-journal">Nucleic Acids Research 53 (13), gkaf660 (2025)</p>
+                        <img src="./images/NAR_2025_YU.png" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2025</div>
+                        <h3 class="publication-title">Massively parallel homogeneous amplification of chip-scale DNA for DNA information storage (MPHAC-DIS)</h3>
+                        <p class="publication-journal">Nature Communications 16 (1), 667 (2 citations)</p>
+                        <img src="./images/NC_2025_WZ.png" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Random Sanitization in DNA information storage using CRISPR-Cas12a</h3>
+                        <p class="publication-journal">Journal of the American Chemical Society 146 (51), 35155-35164 (4 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Selective Enrichment of Low‐Abundance DNA Variants Based on Programmable Peptide Nucleic Acid Probes</h3>
+                        <p class="publication-journal">Chinese Journal of Chemistry 42 (21), 2572-2580 (2 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Design of enhanced entropy-driven non-covalent DNA catalytic reactions via the paired junction structure</h3>
+                        <p class="publication-journal">Chemical Engineering Journal 498, 155509 (2 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Building a stable and robust anti-interference DNA dissipation system by eliminating the accumulation of systemic specified errors</h3>
+                        <p class="publication-journal">Analytica Chimica Acta 1302, 342493 (2024)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Extended Enrichment for Ultrasensitive Detection of Low‐Frequency Mutations by Long Blocker Displacement Amplification</h3>
+                        <p class="publication-journal">Angewandte Chemie International Edition 63 (19), e202400551 (8 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Modified unit-mediated strand displacement reactions for direct detection of single nucleotide variants in active double-stranded DNA</h3>
+                        <p class="publication-journal">ACS Nano 18 (19), 12401-12411 (10 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2024</div>
+                        <h3 class="publication-title">Movable toehold for leakless self-assembly circuits</h3>
+                        <p class="publication-journal">Biosensors and Bioelectronics 245, 115823 (7 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2023</div>
+                        <h3 class="publication-title">A hairpin probe-mediated exponential amplification reaction for highly sensitive and specific detection of microRNAs</h3>
+                        <p class="publication-journal">Chemical Communications 59 (28), 4158-4161 (6 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">A PAM-free CRISPR/Cas12a ultra-specific activation mode based on toehold-mediated strand displacement and branch migration</h3>
+                        <p class="publication-journal">Nucleic Acids Research 50 (20), 11727-11737 (57 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">A Target-Feedback Rolling-Cleavage signal amplifier for ultrasensitive electrochemical detection of miRNA with Self-Assembled CeO2@ Ag hybrid nanoflowers</h3>
+                        <p class="publication-journal">Bioelectrochemistry 146, 108152 (4 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">Toehold-mediated nonenzymatic DNA strand displacement coupling UDG mediated PCR and multi-code magnetic beads for DNA genotyping</h3>
+                        <p class="publication-journal">Microchemical Journal 178, 107340 (4 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">Bulge-loop tuned entropy-driven catalytic reaction and tag-encoded barcodes for multiplexed mutation detection</h3>
+                        <p class="publication-journal">Sensors and Actuators B: Chemical 358, 131462 (15 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">Specific and robust hybridization based on double-stranded nucleic acids with single-base resolution</h3>
+                        <p class="publication-journal">Analytica Chimica Acta 1199, 339568 (3 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2022</div>
+                        <h3 class="publication-title">Cooperative branch migration: a mechanism for flexible control of DNA strand displacement</h3>
+                        <p class="publication-journal">ACS Nano 16 (2), 3135-3144 (32 citations)</p>
+                        <img src="./images/ACSNano_2022_WZ.png" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2021</div>
+                        <h3 class="publication-title">DNAzyme based three-way junction assay for antibody-free detection of locus-specific N6-methyladenosine modifications</h3>
+                        <p class="publication-journal">Biosensors and Bioelectronics 194, 113625 (38 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2021</div>
+                        <h3 class="publication-title">Ultrasensitive electrochemical biosensor for attomolar level detection of let 7a based on toehold mediated strand displacement reaction circuits and molecular beacon mediated …</h3>
+                        <p class="publication-journal">Analytica Chimica Acta 1147, 108-115 (19 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2021</div>
+                        <h3 class="publication-title">An integrated fluorescence biosensor for microRNA detection based on exponential amplification reaction-triggered three-dimensional bipedal DNA walkers</h3>
+                        <p class="publication-journal">Analytica Chimica Acta 1143, 157-165 (33 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2020</div>
+                        <h3 class="publication-title">Simulation-guided DNAzyme based nanomachine design for identifying single nucleotide variants</h3>
+                        <p class="publication-journal">Sensors and Actuators B: Chemical 324, 128719 (3 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2020</div>
+                        <h3 class="publication-title">Phage-guided targeting, discriminative imaging, and synergistic killing of bacteria by AIE bioconjugates</h3>
+                        <p class="publication-journal">Journal of the American Chemical Society 142 (8), 3959-3969 (204 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-dot"></div>
+                        <div class="publication-year">2020</div>
+                        <h3 class="publication-title">Multiplex real-time PCR using double-strand primers and probes for the detection of nucleic acids</h3>
+                        <p class="publication-journal">Analytical Methods 12 (44), 5392-5396 (2 citations)</p>
+                        <img src="https://via.placeholder.com/150" alt="Paper Image" style="width:100%;border-radius:10px;margin-top:10px;">
+                    </div>
+                </div>
+            </div>
+            <!-- 简单柱状图展示每年发表论文数量 -->
+            <div class="publication-chart" style="margin-top:60px; text-align:center;">
+                <canvas id="pub-chart" width="800" height="300" style="max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- 联系方式 -->
+    <section class="section contact" id="contact">
+        <div class="section-content">
+            <h2 class="section-title" data-i18n="section-contact-title">联系方式</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3 data-i18n="contact-heading">让我们一起探讨合作机会</h3>
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        wengzhi222@sjtu.edu.cn
+                    </div>
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                        上海交通大学生物医学工程学院
+                    </div>
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        ORCID: 0000-0000-0000-0000
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <label data-i18n="contact-name-label">姓名</label>
+                        <input type="text" placeholder="您的姓名">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="contact-email-label">邮箱</label>
+                        <input type="email" placeholder="您的邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="contact-message-label">留言</label>
+                        <textarea rows="4" placeholder="请输入您的留言..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" data-i18n="contact-submit">发送消息</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 WZ222. All rights reserved. | 上海交通大学生物医学工程学院</p>
+    </footer>
+
+    <script>
+        // 页面加载完成后隐藏加载动画
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1000);
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 滚动动画
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // 观察需要动画的元素
+        document.querySelectorAll('.section-title, .research-card, .timeline-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // 个人照片已固定使用profile-photo.jpg
+        // 移除了照片上传功能，使用预设的个人头像
+
+        // 表单提交处理
+        document.querySelector('.contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('感谢您的留言！我会尽快回复您。');
+            e.target.reset();
+        });
+
+        // DNA粒子动态效果
+        const particles = document.querySelectorAll('.dna-particle');
+        particles.forEach((particle, index) => {
+            particle.style.animationDelay = `${index * 0.5}s`;
+        });
+
+        /**
+         * 多语言切换逻辑
+         * 定义中文(zh)和英文(en)的翻译映射，通过 data-i18n 属性绑定
+         */
+        const translations = {
+            zh: {
+                'nav-home': '首页',
+                'nav-research': '研究方向',
+                'nav-publications': '发表成果',
+                'nav-contact': '联系方式',
+                'hero-title': '探索DNA纳米技术的无限可能',
+                'hero-subtitle': 'DNA Nanotechnology Researcher',
+                'hero-desc': '我是wz222，上海交通大学生物医学工程学院博士研究生。专注于DNA纳米技术的前沿研究，致力于开发创新的分子设计方法和生物医学应用。',
+                'cta-primary': '了解我的研究',
+                'cta-secondary': '联系我',
+                'section-research-title': '研究方向',
+                'research-storage-title': 'DNA数据存储',
+                'research-storage-desc': '开发高密度DNA存储技术，将数字信息编码到DNA序列中，实现超高密度、长期稳定的数据存储解决方案。',
+                'research-sequencing-title': '高通量DNA测序',
+                'research-sequencing-desc': '研究新一代测序技术和算法优化，提高测序通量、准确性和速度，推动基因组学研究和精准医疗发展。',
+                'research-diagnosis-title': '核酸分子诊断',
+                'research-diagnosis-desc': '开发创新的核酸检测技术和诊断平台，实现快速、灵敏、特异的病原体检测和遗传疾病诊断。',
+                'section-publications-title': '发表成果',
+            'view-scholar': '查看 Google 学术主页',
+                'testimonials-title': '合作伙伴评价',
+                'testimonial-1': '“与wz222合作是一次令人难忘的经历，他在DNA纳米技术领域的深厚知识帮助我们项目取得了突破。”',
+                'testimonial-1-author': '—— 张教授，复旦大学',
+                'testimonial-2': '“他的创新思维和出色的实验能力让团队受益匪浅，期待未来继续合作。”',
+                'testimonial-2-author': '—— 李博士，中科院',
+                'testimonial-3': '“wz222在国际会议上分享的研究成果令人印象深刻，是该领域的领军人物。”',
+                'testimonial-3-author': '—— Dr. Smith, MIT',
+                'section-contact-title': '联系方式',
+                'contact-heading': '让我们一起探讨合作机会',
+                'contact-name-label': '姓名',
+                'contact-name-placeholder': '您的姓名',
+                'contact-email-label': '邮箱',
+                'contact-email-placeholder': '您的邮箱',
+                'contact-message-label': '留言',
+                'contact-message-placeholder': '请输入您的留言...',
+                'contact-submit': '发送消息'
+            },
+            en: {
+                'nav-home': 'Home',
+                'nav-research': 'Research',
+                'nav-publications': 'Publications',
+                'nav-contact': 'Contact',
+                'hero-title': 'Exploring the Infinite Possibilities of DNA Nanotechnology',
+                'hero-subtitle': 'DNA Nanotechnology Researcher',
+                'hero-desc': 'I am wz222, a PhD student at Shanghai Jiao Tong University College of Biomedical Engineering. I focus on cutting-edge DNA nanotechnology, developing innovative molecular design methods and biomedical applications.',
+                'cta-primary': 'See My Research',
+                'cta-secondary': 'Contact Me',
+                'section-research-title': 'Research Areas',
+                'research-storage-title': 'DNA Data Storage',
+                'research-storage-desc': 'Develop high-density DNA storage technologies that encode digital information into DNA sequences, achieving ultra-high-density and long-term stable data storage.',
+                'research-sequencing-title': 'High-Throughput DNA Sequencing',
+                'research-sequencing-desc': 'Research next-generation sequencing technologies and algorithm optimization to improve throughput, accuracy and speed, advancing genomics and precision medicine.',
+                'research-diagnosis-title': 'Nucleic Acid Molecular Diagnostics',
+                'research-diagnosis-desc': 'Develop innovative nucleic acid detection technologies and diagnostic platforms for rapid, sensitive and specific pathogen detection and genetic disease diagnosis.',
+                'section-publications-title': 'Publications',
+            'view-scholar': 'View Google Scholar Profile',
+                'testimonials-title': 'Testimonials',
+                'testimonial-1': '“Working with wz222 was an unforgettable experience; his deep knowledge in DNA nanotechnology helped our project achieve breakthroughs.”',
+                'testimonial-1-author': '— Prof. Zhang, Fudan University',
+                'testimonial-2': '“His innovative thinking and outstanding experimental skills greatly benefited our team; we look forward to future collaborations.”',
+                'testimonial-2-author': '— Dr. Li, CAS',
+                'testimonial-3': '“The research results that wz222 shared at international conferences were impressive; he is a leader in this field.”',
+                'testimonial-3-author': '— Dr. Smith, MIT',
+                'section-contact-title': 'Contact',
+                'contact-heading': "Let's explore collaboration opportunities together", 
+                'contact-name-label': 'Name',
+                'contact-name-placeholder': 'Your name',
+                'contact-email-label': 'Email',
+                'contact-email-placeholder': 'Your email',
+                'contact-message-label': 'Message',
+                'contact-message-placeholder': 'Please enter your message...',
+                'contact-submit': 'Send Message'
+            }
+        };
+
+        let currentLang = 'zh';
+
+        // 更新页面语言
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            // 更新表单占位符
+            const nameInput = document.querySelector('.contact-form input[type="text"]');
+            const emailInput = document.querySelector('.contact-form input[type="email"]');
+            const messageInput = document.querySelector('.contact-form textarea');
+            if (nameInput) nameInput.placeholder = translations[currentLang]['contact-name-placeholder'];
+            if (emailInput) emailInput.placeholder = translations[currentLang]['contact-email-placeholder'];
+            if (messageInput) messageInput.placeholder = translations[currentLang]['contact-message-placeholder'];
+            const submitBtn = document.querySelector('.contact-form button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = translations[currentLang]['contact-submit'];
+        }
+
+        // 语言切换按钮事件
+        const langBtn = document.getElementById('lang-toggle');
+        langBtn.addEventListener('click', function () {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            // 按钮显示相反语言
+            this.textContent = currentLang === 'zh' ? 'EN' : '中文';
+            updateLanguage();
+        });
+
+        // 初始化语言
+        updateLanguage();
+
+        /**
+         * 绘制简单柱状图：展示各年份发表论文数量
+         * 使用原生 Canvas API 绘制，避免依赖外部库
+         */
+        function drawPublicationChart() {
+            const canvas = document.getElementById('pub-chart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            // 各年份发表论文数量（2020-2025）
+            const data = [3, 3, 6, 1, 7, 2];
+            const labels = ['2020', '2021', '2022', '2023', '2024', '2025'];
+            const chartWidth = canvas.width;
+            const chartHeight = canvas.height;
+            const padding = 40;
+            const barWidth = (chartWidth - padding * 2) / data.length / 1.5;
+            const maxVal = Math.max(...data);
+            // 清空画布
+            ctx.clearRect(0, 0, chartWidth, chartHeight);
+            // 绘制轴线
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, chartHeight - padding);
+            ctx.lineTo(chartWidth - padding, chartHeight - padding);
+            ctx.stroke();
+            // 绘制柱状
+            data.forEach((val, idx) => {
+                const x = padding + (idx + 0.5) * barWidth * 1.5;
+                const barHeight = (chartHeight - padding * 2) * (val / maxVal);
+                const y = chartHeight - padding - barHeight;
+                // 柱体
+                const gradient = ctx.createLinearGradient(0, y, 0, chartHeight - padding);
+                gradient.addColorStop(0, '#00ffaa');
+                gradient.addColorStop(1, '#00ccff');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                // 标签
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[idx], x + barWidth / 2, chartHeight - padding + 20);
+                ctx.fillText(val.toString(), x + barWidth / 2, y - 10);
+            });
+            // 只替换占位图，保留实际图片
+            document.querySelectorAll('.timeline-content img').forEach(img => {
+                // 只替换在线占位图，保留本地实际图片
+                if (img.src.includes('via.placeholder.com')) {
+                    // 尝试使用本地占位图
+                    img.src = './images/placeholder-publication.png';
+                }
+                
+                // 为所有图片添加错误处理
+                img.onerror = function() {
+                    // 使用SVG占位图作为后备方案
+                    this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="0 0 400 150"%3E%3Crect width="400" height="150" fill="%231a1a1a"/%3E%3Ctext x="200" y="75" font-family="Arial" font-size="16" fill="%23666" text-anchor="middle" dominant-baseline="middle"%3EPaper Preview%3C/text%3E%3C/svg%3E';
+                    this.onerror = null; // 防止无限循环
+                };
+            });
+        }
+        // 在页面加载结束后绘制图表
+        window.addEventListener('load', drawPublicationChart);
+    </script>
+</body>
+</html>
